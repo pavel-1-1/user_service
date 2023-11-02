@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Address.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">com.json.student</a> &gt; <span class="el_source">Address.java</span></div><h1>Address.java</h1><pre class="source lang-java linenums">
+package com.json.student;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.annotation.processing.Generated;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    &quot;street&quot;,
+    &quot;city&quot;,
+    &quot;state&quot;,
+    &quot;country&quot;,
+    &quot;postalCode&quot;
+})
+@Generated(&quot;jsonschema2pojo&quot;)
+<span class="nc" id="L23">public class Address {</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;street&quot;)
+    private String street;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;city&quot;)
+    private String city;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;state&quot;)
+    private String state;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;country&quot;)
+    private String country;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;postalCode&quot;)
+    private String postalCode;
+<span class="nc" id="L60">    @JsonIgnore</span>
+    private Map&lt;String, Object&gt; additionalProperties = new LinkedHashMap&lt;String, Object&gt;();
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;street&quot;)
+    public String getStreet() {
+<span class="nc" id="L70">        return street;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;street&quot;)
+    public void setStreet(String street) {
+<span class="nc" id="L80">        this.street = street;</span>
+<span class="nc" id="L81">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;city&quot;)
+    public String getCity() {
+<span class="nc" id="L90">        return city;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;city&quot;)
+    public void setCity(String city) {
+<span class="nc" id="L100">        this.city = city;</span>
+<span class="nc" id="L101">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;state&quot;)
+    public String getState() {
+<span class="nc" id="L110">        return state;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;state&quot;)
+    public void setState(String state) {
+<span class="nc" id="L120">        this.state = state;</span>
+<span class="nc" id="L121">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;country&quot;)
+    public String getCountry() {
+<span class="nc" id="L130">        return country;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;country&quot;)
+    public void setCountry(String country) {
+<span class="nc" id="L140">        this.country = country;</span>
+<span class="nc" id="L141">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;postalCode&quot;)
+    public String getPostalCode() {
+<span class="nc" id="L150">        return postalCode;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;postalCode&quot;)
+    public void setPostalCode(String postalCode) {
+<span class="nc" id="L160">        this.postalCode = postalCode;</span>
+<span class="nc" id="L161">    }</span>
+
+    @JsonAnyGetter
+    public Map&lt;String, Object&gt; getAdditionalProperties() {
+<span class="nc" id="L165">        return this.additionalProperties;</span>
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+<span class="nc" id="L170">        this.additionalProperties.put(name, value);</span>
+<span class="nc" id="L171">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L175">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L176">        sb.append(Address.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');</span>
+<span class="nc" id="L177">        sb.append(&quot;street&quot;);</span>
+<span class="nc" id="L178">        sb.append('=');</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        sb.append(((this.street == null)?&quot;&lt;null&gt;&quot;:this.street));</span>
+<span class="nc" id="L180">        sb.append(',');</span>
+<span class="nc" id="L181">        sb.append(&quot;city&quot;);</span>
+<span class="nc" id="L182">        sb.append('=');</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        sb.append(((this.city == null)?&quot;&lt;null&gt;&quot;:this.city));</span>
+<span class="nc" id="L184">        sb.append(',');</span>
+<span class="nc" id="L185">        sb.append(&quot;state&quot;);</span>
+<span class="nc" id="L186">        sb.append('=');</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        sb.append(((this.state == null)?&quot;&lt;null&gt;&quot;:this.state));</span>
+<span class="nc" id="L188">        sb.append(',');</span>
+<span class="nc" id="L189">        sb.append(&quot;country&quot;);</span>
+<span class="nc" id="L190">        sb.append('=');</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        sb.append(((this.country == null)?&quot;&lt;null&gt;&quot;:this.country));</span>
+<span class="nc" id="L192">        sb.append(',');</span>
+<span class="nc" id="L193">        sb.append(&quot;postalCode&quot;);</span>
+<span class="nc" id="L194">        sb.append('=');</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        sb.append(((this.postalCode == null)?&quot;&lt;null&gt;&quot;:this.postalCode));</span>
+<span class="nc" id="L196">        sb.append(',');</span>
+<span class="nc" id="L197">        sb.append(&quot;additionalProperties&quot;);</span>
+<span class="nc" id="L198">        sb.append('=');</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        sb.append(((this.additionalProperties == null)?&quot;&lt;null&gt;&quot;:this.additionalProperties));</span>
+<span class="nc" id="L200">        sb.append(',');</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (sb.charAt((sb.length()- 1)) == ',') {</span>
+<span class="nc" id="L202">            sb.setCharAt((sb.length()- 1), ']');</span>
+        } else {
+<span class="nc" id="L204">            sb.append(']');</span>
+        }
+<span class="nc" id="L206">        return sb.toString();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L211">        int result = 1;</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        result = ((result* 31)+((this.country == null)? 0 :this.country.hashCode()));</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        result = ((result* 31)+((this.city == null)? 0 :this.city.hashCode()));</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">        result = ((result* 31)+((this.street == null)? 0 :this.street.hashCode()));</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        result = ((result* 31)+((this.postalCode == null)? 0 :this.postalCode.hashCode()));</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        result = ((result* 31)+((this.state == null)? 0 :this.state.hashCode()));</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));</span>
+<span class="nc" id="L218">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object other) {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        if (other == this) {</span>
+<span class="nc" id="L224">            return true;</span>
+        }
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        if ((other instanceof Address) == false) {</span>
+<span class="nc" id="L227">            return false;</span>
+        }
+<span class="nc" id="L229">        Address rhs = ((Address) other);</span>
+<span class="nc bnc" id="L230" title="All 36 branches missed.">        return (((((((this.country == rhs.country)||((this.country!= null)&amp;&amp;this.country.equals(rhs.country)))&amp;&amp;((this.city == rhs.city)||((this.city!= null)&amp;&amp;this.city.equals(rhs.city))))&amp;&amp;((this.street == rhs.street)||((this.street!= null)&amp;&amp;this.street.equals(rhs.street))))&amp;&amp;((this.postalCode == rhs.postalCode)||((this.postalCode!= null)&amp;&amp;this.postalCode.equals(rhs.postalCode))))&amp;&amp;((this.state == rhs.state)||((this.state!= null)&amp;&amp;this.state.equals(rhs.state))))&amp;&amp;((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&amp;&amp;this.additionalProperties.equals(rhs.additionalProperties))));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

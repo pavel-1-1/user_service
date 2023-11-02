@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Recommendation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.entity.recommendation</a> &gt; <span class="el_source">Recommendation.java</span></div><h1>Recommendation.java</h1><pre class="source lang-java linenums">package school.faang.user_service.entity.recommendation;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+<span class="nc bnc" id="L15" title="All 64 branches missed.">@Data</span>
+<span class="nc" id="L16">@AllArgsConstructor</span>
+<span class="nc" id="L17">@NoArgsConstructor</span>
+<span class="nc" id="L18">@Builder</span>
+@Entity
+@Table(name = &quot;recommendation&quot;)
+public class Recommendation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L25">    private long id;</span>
+
+    @Column(name = &quot;content&quot;, length = 4096, nullable = false)
+<span class="nc" id="L28">    private String content;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;author_id&quot;, nullable = false)
+<span class="nc" id="L32">    private User author;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;receiver_id&quot;, nullable = false)
+<span class="nc" id="L36">    private User receiver;</span>
+
+    @OneToMany(mappedBy = &quot;recommendation&quot;, cascade = CascadeType.ALL)
+<span class="nc" id="L39">    private List&lt;SkillOffer&gt; skillOffers;</span>
+
+    @OneToOne(mappedBy = &quot;recommendation&quot;)
+<span class="nc" id="L42">    private RecommendationRequest request;</span>
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;created_at&quot;)
+<span class="nc" id="L47">    private LocalDateTime createdAt;</span>
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L52">    private LocalDateTime updatedAt;</span>
+
+    public void addSkillOffer(SkillOffer skillOffer) {
+<span class="nc" id="L55">        skillOffers.add(skillOffer);</span>
+<span class="nc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

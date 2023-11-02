@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.controller</a> &gt; <span class="el_source">RecommendationController.java</span></div><h1>RecommendationController.java</h1><pre class="source lang-java linenums">package school.faang.user_service.controller;
+
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
+import school.faang.user_service.service.RecommendationService;
+
+@RestController
+@RequestMapping(&quot;/api/v1/recommendations&quot;)
+<span class="nc" id="L14">public class RecommendationController {</span>
+    @Autowired
+    private RecommendationService recommendationService;
+
+    @PostMapping
+    public ResponseEntity&lt;RecommendationDto&gt; giveRecommendation(@Valid @RequestBody RecommendationDto recommendation) {
+<span class="nc" id="L20">        RecommendationDto newRecommendation = recommendationService.create(recommendation);</span>
+<span class="nc" id="L21">        return ResponseEntity.ok(newRecommendation);</span>
+    }
+
+    @PutMapping
+    public ResponseEntity&lt;RecommendationDto&gt; updateRecommendation(@Valid @RequestBody RecommendationUpdateDto toUpdate) {
+<span class="nc" id="L26">        RecommendationDto updatedRecommendation = recommendationService.update(toUpdate);</span>
+<span class="nc" id="L27">        return ResponseEntity.ok(updatedRecommendation);</span>
+    }
+
+    @DeleteMapping
+    public ResponseEntity deleteRecommendation(@PathVariable Long id) {
+<span class="nc" id="L32">        recommendationService.delete(id);</span>
+<span class="nc" id="L33">        return ResponseEntity.ok().build();</span>
+    }
+
+    @GetMapping(&quot;/receiver/{id}&quot;)
+    public Page&lt;RecommendationDto&gt; getAllReceiverRecommendations(@PathVariable(name = &quot;id&quot;) Long receiverId,
+                                                                 @RequestParam(value = &quot;page&quot;) int page,
+                                                                 @RequestParam(value = &quot;pageSize&quot;) int pageSize) {
+<span class="nc" id="L40">        return recommendationService.getAllReceiverRecommendations(receiverId, page, pageSize);</span>
+    }
+
+    @GetMapping(&quot;/author/{id}&quot;)
+    public Page&lt;RecommendationDto&gt; getAllAuthorRecommendations(@PathVariable(name = &quot;id&quot;) Long authorId,
+                                                               @RequestParam(value = &quot;page&quot;) int page,
+                                                               @RequestParam(value = &quot;pageSize&quot;) int pageSize) {
+<span class="nc" id="L47">        return recommendationService.getAllAuthorRecommendations(authorId, page, pageSize);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

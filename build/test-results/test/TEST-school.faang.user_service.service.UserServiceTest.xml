@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="school.faang.user_service.service.UserServiceTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2023-09-30T06:12:16" hostname="DESKTOP-T5134UM" time="1.793">
+  <properties/>
+  <testcase name="testGetUserContact_UserNotFound()" classname="school.faang.user_service.service.UserServiceTest" time="1.689"/>
+  <testcase name="saveUserStudent()" classname="school.faang.user_service.service.UserServiceTest" time="0.059"/>
+  <testcase name="testUpdateUserContact_UserNotFound()" classname="school.faang.user_service.service.UserServiceTest" time="0.006"/>
+  <testcase name="testFindUserIdByPhoneNumber_UserNotFound()" classname="school.faang.user_service.service.UserServiceTest" time="0.005"/>
+  <testcase name="testGetUserContact_ContactNotNull()" classname="school.faang.user_service.service.UserServiceTest" time="0.01"/>
+  <testcase name="testUpdateUserContact_TgContactIsPresent()" classname="school.faang.user_service.service.UserServiceTest" time="0.005"/>
+  <testcase name="testGetUserContact_ContactIsNull()" classname="school.faang.user_service.service.UserServiceTest" time="0.004"/>
+  <testcase name="testUpdateUserContact_TgContactIsNotPresent()" classname="school.faang.user_service.service.UserServiceTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

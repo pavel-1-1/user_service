@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service.event</a> &gt; <span class="el_source">EventService.java</span></div><h1>EventService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service.event;
+
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.ListUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.redis.EventStartDto;
+import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.exception.DataValidException;
+import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.filter.event.EventFilter;
+import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.skill.SkillMapper;
+import school.faang.user_service.publisher.EventStartPublisher;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.event.EventRepository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+
+@Service
+<span class="nc" id="L33">@RequiredArgsConstructor</span>
+public class EventService {
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+<span class="nc" id="L37">    private final EventMapper eventMapper = EventMapper.INSTANCE;</span>
+<span class="nc" id="L38">    private final SkillMapper skillMapper = SkillMapper.INSTANCE;</span>
+    private final List&lt;EventFilter&gt; filters;
+    private final EventStartPublisher eventStartPublisher;
+    private final EventAsyncService eventAsyncService;
+
+    public EventDto create(EventDto eventDto) {
+<span class="nc" id="L44">        validateEventDto(eventDto);</span>
+<span class="nc" id="L45">        eventDto.setId(null);</span>
+<span class="nc" id="L46">        Event event = eventMapper.toEntity(eventDto);</span>
+<span class="nc" id="L47">        event.setStatus(EventStatus.PLANNED);</span>
+<span class="nc" id="L48">        return eventMapper.toDto(eventRepository.save(event));</span>
+    }
+
+    public EventDto get(Long eventId) {
+<span class="nc" id="L52">        Event event = eventRepository.findById(eventId)</span>
+<span class="nc" id="L53">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Event not found&quot;));</span>
+<span class="nc" id="L54">        return EventMapper.INSTANCE.toDto(event);</span>
+    }
+
+    public boolean deleteEvent(Long eventId) {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (eventRepository.existsById(eventId)) {</span>
+<span class="nc" id="L59">            eventRepository.deleteById(eventId);</span>
+<span class="nc" id="L60">            return true;</span>
+        }
+<span class="nc" id="L62">        return false;</span>
+    }
+
+    public List&lt;EventDto&gt; getEventsByFilter(EventFilterDto eventFilter) {
+<span class="nc" id="L66">        Stream&lt;EventDto&gt; eventDtoStream = eventRepository.findAll().stream().map(eventMapper::toDto);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        for (EventFilter filter : filters) {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (filter.isApplicable(eventFilter)) {</span>
+<span class="nc" id="L69">                eventDtoStream = filter.apply(eventDtoStream, eventFilter);</span>
+            }
+<span class="nc" id="L71">        }</span>
+
+<span class="nc" id="L73">        return eventDtoStream.toList();</span>
+    }
+
+    public List&lt;EventDto&gt; getOwnedEvents(long userId) {
+<span class="nc" id="L77">        return eventMapper.toListDto(eventRepository.findAllByUserId(userId));</span>
+    }
+
+    public List&lt;EventDto&gt; getParticipatedEvents(long userId) {
+<span class="nc" id="L81">        return EventMapper.INSTANCE.toListDto(eventRepository.findParticipatedEventsByUserId(userId));</span>
+    }
+
+    public EventDto updateEvent(EventDto source) {
+<span class="nc" id="L85">        validateEventDto(source);</span>
+
+<span class="nc" id="L87">        Event event = eventRepository.findById(source.getId())</span>
+<span class="nc" id="L88">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Event not found. ID: &quot; + source.getId()));</span>
+<span class="nc" id="L89">        EventDto target = eventMapper.toDto(event);</span>
+
+<span class="nc" id="L91">        BeanUtils.copyProperties(source, target, &quot;id&quot;, &quot;relatedSkills&quot;);</span>
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (source.getRelatedSkills() != null) {</span>
+<span class="nc" id="L94">            List&lt;SkillDto&gt; sourceSkills = new ArrayList&lt;&gt;(source.getRelatedSkills());</span>
+<span class="nc" id="L95">            sourceSkills.retainAll(target.getRelatedSkills());</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (!sourceSkills.isEmpty()) {</span>
+<span class="nc" id="L97">                target.setRelatedSkills(source.getRelatedSkills());</span>
+            }
+        }
+
+<span class="nc" id="L101">        Event result = eventRepository.save(eventMapper.toEntity(target));</span>
+<span class="nc" id="L102">        return eventMapper.toDto(result);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public EventStartDto startEvent(Long eventId) {
+<span class="nc" id="L107">        Event event = eventRepository.findById(eventId)</span>
+<span class="nc" id="L108">                .orElseThrow(() -&gt; new DataValidException(&quot;Event with id &quot; + eventId + &quot; is not found&quot;));</span>
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (!event.getStatus().equals(EventStatus.PLANNED)) {</span>
+<span class="nc" id="L111">            throw new DataValidException(&quot;You can only start events in Planned state&quot;);</span>
+        }
+
+<span class="nc" id="L114">        List&lt;Long&gt; userIds = event.getAttendees().stream()</span>
+<span class="nc" id="L115">                .map(User::getId)</span>
+<span class="nc" id="L116">                .toList();</span>
+
+<span class="nc" id="L118">        EventStartDto eventStartDto = new EventStartDto(event.getId(), userIds);</span>
+<span class="nc" id="L119">        eventStartPublisher.publishMessage(eventStartDto);</span>
+<span class="nc" id="L120">        return eventStartDto;</span>
+    }
+
+    private void validateEventDto(EventDto eventDto) {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (!userRepository.existsById(eventDto.getOwnerId())) {</span>
+<span class="nc" id="L125">            throw new UserNotFoundException(&quot;User not found. ID: &quot; + eventDto.getOwnerId());</span>
+        }
+<span class="nc" id="L127">        checkUserContainsSkills(eventDto);</span>
+<span class="nc" id="L128">    }</span>
+
+    private void checkUserContainsSkills(EventDto eventDto) {
+<span class="nc" id="L131">        User user = userRepository.findById(eventDto.getOwnerId())</span>
+<span class="nc" id="L132">                .orElseThrow(() -&gt; new UserNotFoundException(&quot;User not found. ID: &quot; + eventDto.getOwnerId()));</span>
+
+<span class="nc" id="L134">        List&lt;SkillDto&gt; userSkills = skillMapper.toListSkillsDTO(user.getSkills());</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        boolean anySkillMissing = eventDto.getRelatedSkills().stream().anyMatch(skill -&gt; !userSkills.contains(skill));</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (anySkillMissing) {</span>
+<span class="nc" id="L137">            throw new DataValidException(&quot;User has no related skills. Id: &quot; + eventDto.getOwnerId());</span>
+        }
+<span class="nc" id="L139">    }</span>
+
+
+    @Transactional
+    @Retryable(maxAttempts = 2, backoff = @Backoff(delayExpression = &quot;10000&quot;))
+    public void deletePastEvents(int partitionSize) {
+<span class="nc" id="L145">        List&lt;Event&gt; eventsToDelete = eventRepository.findAllByCreatedAtBefore(LocalDateTime.now().withNano(0));</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (eventsToDelete.size() &gt; partitionSize) {</span>
+<span class="nc" id="L148">            List&lt;List&lt;Event&gt;&gt; partitions = ListUtils.partition(eventsToDelete, partitionSize);</span>
+<span class="nc" id="L149">            partitions.forEach(eventAsyncService::clearEventsPartition);</span>
+<span class="nc" id="L150">        } else {</span>
+<span class="nc" id="L151">            eventAsyncService.clearEventsPartition(eventsToDelete);</span>
+        }
+<span class="nc" id="L153">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

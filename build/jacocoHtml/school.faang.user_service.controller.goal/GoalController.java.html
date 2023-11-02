@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GoalController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.controller.goal</a> &gt; <span class="el_source">GoalController.java</span></div><h1>GoalController.java</h1><pre class="source lang-java linenums">package school.faang.user_service.controller.goal;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.ResponseGoalDto;
+import school.faang.user_service.service.GoalService;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
+
+import java.util.List;
+
+@RestController
+<span class="nc" id="L26">@RequiredArgsConstructor</span>
+@RequestMapping(&quot;api/v1/goals&quot;)
+public class GoalController {
+    private final GoalService goalService;
+
+    @DeleteMapping(&quot;{goalId}&quot;)
+    public void deleteGoal(@PathVariable long goalId) {
+<span class="nc" id="L33">        goalService.deleteGoal(goalId);</span>
+<span class="nc" id="L34">    }</span>
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseGoalDto createGoal(@RequestParam Long userId, @Valid @RequestBody CreateGoalDto goal){
+<span class="nc" id="L39">        return goalService.createGoal(userId, goal);</span>
+    }
+
+    @GetMapping(&quot;/filtered&quot;)
+    public List&lt;GoalDto&gt; getSubGoalsByFilter(@RequestParam Long parentId, GoalFilterDto filterDto) {
+<span class="nc" id="L44">        return goalService.getSubGoalsByFilter(parentId, filterDto);</span>
+    }
+
+    @GetMapping(&quot;/owner/{userId}&quot;)
+    public List&lt;GoalDto&gt; getGoalsByUser(@PathVariable Long userId, GoalFilterDto filterDto) {
+<span class="nc" id="L49">        return goalService.getGoalsByUser(userId, filterDto);</span>
+    }
+
+    @PutMapping
+    public UpdateGoalDto updateGoal(@Valid @RequestBody UpdateGoalDto updateGoalDto){
+<span class="nc" id="L54">        return goalService.updateGoal(updateGoalDto);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.entity</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">package school.faang.user_service.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalInvitation;
+import school.faang.user_service.entity.event.Rating;
+import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.entity.recommendation.Recommendation;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+<span class="pc bpc" id="L22" title="245 of 256 branches missed.">@Data</span>
+<span class="pc" id="L23">@Builder</span>
+<span class="fc" id="L24">@NoArgsConstructor</span>
+<span class="fc" id="L25">@AllArgsConstructor</span>
+@Entity
+@Table(name = &quot;users&quot;)
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="fc" id="L32">    private long id;</span>
+
+    @Column(name = &quot;username&quot;, length = 64, nullable = false, unique = true)
+<span class="fc" id="L35">    private String username;</span>
+
+    @Column(name = &quot;email&quot;, length = 64, nullable = false, unique = true)
+<span class="nc" id="L38">    private String email;</span>
+
+    @Column(name = &quot;phone&quot;, length = 32, unique = true)
+<span class="fc" id="L41">    private String phone;</span>
+
+    @Column(name = &quot;password&quot;, length = 128, nullable = false)
+<span class="nc" id="L44">    private String password;</span>
+
+    @Column(name = &quot;active&quot;, nullable = false)
+<span class="fc" id="L47">    private boolean active;</span>
+
+    @Column(name = &quot;about_me&quot;, length = 4096)
+<span class="nc" id="L50">    private String aboutMe;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;country_id&quot;, nullable = false)
+<span class="nc" id="L54">    private Country country;</span>
+
+    @Column(name = &quot;city&quot;, length = 64)
+<span class="nc" id="L57">    private String city;</span>
+
+    @Column(name = &quot;experience&quot;)
+<span class="fc" id="L60">    private Integer experience;</span>
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;created_at&quot;)
+<span class="nc" id="L65">    private LocalDateTime createdAt;</span>
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L70">    private LocalDateTime updatedAt;</span>
+
+    @ManyToMany
+    @JoinTable(name = &quot;subscription&quot;,
+            joinColumns = @JoinColumn(name = &quot;followee_id&quot;), inverseJoinColumns = @JoinColumn(name = &quot;follower_id&quot;))
+<span class="nc" id="L75">    private List&lt;User&gt; followers;</span>
+
+    @ManyToMany(mappedBy = &quot;followers&quot;)
+<span class="nc" id="L78">    private List&lt;User&gt; followees;</span>
+
+    @OneToMany(mappedBy = &quot;owner&quot;)
+<span class="nc" id="L81">    private List&lt;Event&gt; ownedEvents;</span>
+
+    @ManyToMany(mappedBy = &quot;mentors&quot;)
+<span class="nc" id="L84">    private List&lt;User&gt; mentees;</span>
+
+    @ManyToMany
+    @JoinTable(name = &quot;mentorship&quot;,
+            joinColumns = @JoinColumn(name = &quot;mentee_id&quot;),
+            inverseJoinColumns = @JoinColumn(name = &quot;mentor_id&quot;))
+<span class="nc" id="L90">    private List&lt;User&gt; mentors;</span>
+
+    @OneToMany(mappedBy = &quot;receiver&quot;)
+<span class="nc" id="L93">    private List&lt;MentorshipRequest&gt; receivedMentorshipRequests;</span>
+
+    @OneToMany(mappedBy = &quot;requester&quot;)
+<span class="nc" id="L96">    private List&lt;MentorshipRequest&gt; sentMentorshipRequests;</span>
+
+    @OneToMany(mappedBy = &quot;inviter&quot;)
+<span class="nc" id="L99">    private List&lt;GoalInvitation&gt; sentGoalInvitations;</span>
+
+    @OneToMany(mappedBy = &quot;invited&quot;)
+<span class="nc" id="L102">    private List&lt;GoalInvitation&gt; receivedGoalInvitations;</span>
+
+    @OneToMany(mappedBy = &quot;mentor&quot;)
+<span class="nc" id="L105">    private List&lt;Goal&gt; setGoals;</span>
+
+    @ManyToMany(mappedBy = &quot;users&quot;)
+<span class="nc" id="L108">    private List&lt;Goal&gt; goals;</span>
+
+    @ManyToMany(mappedBy = &quot;users&quot;)
+<span class="nc" id="L111">    private List&lt;Skill&gt; skills;</span>
+
+    @ManyToMany
+    @JoinTable(
+            name = &quot;user_event&quot;,
+            joinColumns = @JoinColumn(name = &quot;user_id&quot;),
+            inverseJoinColumns = @JoinColumn(name = &quot;event_id&quot;)
+    )
+<span class="nc" id="L119">    private List&lt;Event&gt; participatedEvents;</span>
+
+    @OneToMany(mappedBy = &quot;author&quot;)
+<span class="nc" id="L122">    private List&lt;Recommendation&gt; recommendationsGiven;</span>
+
+    @OneToMany(mappedBy = &quot;receiver&quot;)
+<span class="nc" id="L125">    private List&lt;Recommendation&gt; recommendationsReceived;</span>
+
+    @OneToMany(mappedBy = &quot;user&quot;)
+<span class="fc" id="L128">    private List&lt;Contact&gt; contacts;</span>
+
+    @OneToMany(mappedBy = &quot;user&quot;)
+<span class="nc" id="L131">    private List&lt;Rating&gt; ratings;</span>
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = &quot;fileId&quot;, column = @Column(name = &quot;profile_pic_file_id&quot;)),
+            @AttributeOverride(name = &quot;smallFileId&quot;, column = @Column(name = &quot;profile_pic_small_file_id&quot;))
+    })
+<span class="nc" id="L138">    private UserProfilePic userProfilePic;</span>
+
+    @OneToOne(mappedBy = &quot;user&quot;)
+<span class="nc" id="L141">    private ContactPreference contactPreference;</span>
+
+    @OneToOne(mappedBy = &quot;user&quot;)
+<span class="nc" id="L144">    private Premium premium;</span>
+
+    @Column(name = &quot;banned&quot;, nullable = false)
+<span class="fc" id="L147">    private boolean banned;</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L151">        return &quot;User{&quot; +</span>
+                &quot;id=&quot; + id +
+                &quot;, username='&quot; + username + '\'' +
+                &quot;, email='&quot; + email + '\'' +
+                &quot;, phone='&quot; + phone + '\'' +
+                '}';
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

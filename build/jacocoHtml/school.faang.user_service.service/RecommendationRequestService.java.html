@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationRequestService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service</a> &gt; <span class="el_source">RecommendationRequestService.java</span></div><h1>RecommendationRequestService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
+import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
+import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+@Service
+<span class="nc" id="L24">@RequiredArgsConstructor</span>
+public class RecommendationRequestService {
+    private final RecommendationRequestRepository recommendationRequestRepository;
+    private final RecommendationRequestMapper recommendationRequestMapper;
+    private final List&lt;RecommendationRequestFilter&gt; recommendationRequestFilters;
+    private final UserRepository userRepository;
+    private final SkillRequestRepository skillRequestRepository;
+    private static final String MSG = &quot;There is no recommendation with such id&quot;;
+
+    public RecommendationRequestDto getRequest(long id) {
+<span class="nc" id="L34">        RecommendationRequest foundPerson = recommendationRequestRepository.findById(id)</span>
+<span class="nc" id="L35">                .orElseThrow(() -&gt; new IllegalStateException(MSG));</span>
+<span class="nc" id="L36">        return recommendationRequestMapper.toDto(foundPerson);</span>
+    }
+
+    public List&lt;RecommendationRequestDto&gt; getRecommendationRequests(RecommendationRequestFilterDto filterDto) {
+<span class="nc" id="L40">        Stream&lt;RecommendationRequest&gt; recommendationRequests = recommendationRequestRepository.findAll().stream();</span>
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        for (RecommendationRequestFilter filter : recommendationRequestFilters) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (filter.isApplicable(filterDto)) {</span>
+<span class="nc" id="L44">                recommendationRequests = filter.apply(recommendationRequests, filterDto);</span>
+            }
+<span class="nc" id="L46">        }</span>
+<span class="nc" id="L47">        return recommendationRequestMapper.toDtoList(recommendationRequests.toList());</span>
+    }
+
+    @Transactional
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+<span class="nc" id="L52">        RecommendationRequest request = recommendationRequestRepository.findById(id)</span>
+<span class="nc" id="L53">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Recommendation with id: &quot; + id + &quot; does not exist&quot;));</span>
+
+<span class="nc" id="L55">        request.setStatus(RequestStatus.REJECTED);</span>
+<span class="nc" id="L56">        request.setRejectionReason(rejection.getReason());</span>
+
+<span class="nc" id="L58">        return recommendationRequestMapper.toDto(request);</span>
+    }
+
+
+    @Transactional
+    public void create(RecommendationRequestDto recommendationRequestDto) {
+<span class="nc" id="L64">        RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(recommendationRequestDto);</span>
+
+<span class="nc" id="L66">        long requesterId = recommendationRequest.getRequester().getId();</span>
+<span class="nc" id="L67">        long receiverId = recommendationRequest.getReceiver().getId();</span>
+<span class="nc" id="L68">        String message = recommendationRequest.getMessage();</span>
+
+<span class="nc" id="L70">        validate(requesterId, receiverId);</span>
+
+<span class="nc" id="L72">        recommendationRequest.setCreatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L73">        recommendationRequest.setUpdatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L74">        recommendationRequest.setStatus(RequestStatus.PENDING);</span>
+
+<span class="nc" id="L76">        RecommendationRequest savedRequest = recommendationRequestRepository.create(requesterId, receiverId, message);</span>
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (SkillRequest skillRequest : recommendationRequest.getSkills()) {</span>
+<span class="nc" id="L79">            skillRequest.setRequest(savedRequest);</span>
+<span class="nc" id="L80">            skillRequestRepository.create(requesterId, skillRequest.getId());</span>
+<span class="nc" id="L81">        }</span>
+<span class="nc" id="L82">    }</span>
+
+    private void validate(long requesterId, long receiverId) {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (isUserNotExists(requesterId)) {</span>
+<span class="nc" id="L86">            throw new IllegalArgumentException(&quot;Requester with such id: &quot; + requesterId + &quot; does not exist.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (isUserNotExists(receiverId)) {</span>
+<span class="nc" id="L90">            throw new IllegalArgumentException(&quot;Receiver with such id: &quot; + receiverId + &quot; does not exist.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (hasPendingRequest(requesterId, receiverId)) {</span>
+<span class="nc" id="L94">            throw new IllegalArgumentException(&quot;A recommendation request between the same users can only be sent once every six months.&quot;);</span>
+        }
+<span class="nc" id="L96">    }</span>
+
+    private boolean isUserNotExists(Long userId) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        return !userRepository.existsById(userId);</span>
+    }
+
+    private boolean hasPendingRequest(long requesterId, long receiverId) {
+<span class="nc" id="L103">        Optional&lt;RecommendationRequest&gt; latestPendingRequest = recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (latestPendingRequest.isPresent()) {</span>
+<span class="nc" id="L105">            LocalDateTime createdAt = latestPendingRequest.get().getCreatedAt();</span>
+<span class="nc" id="L106">            LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);</span>
+<span class="nc" id="L107">            return createdAt.isAfter(sixMonthsAgo);</span>
+        }
+<span class="nc" id="L109">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

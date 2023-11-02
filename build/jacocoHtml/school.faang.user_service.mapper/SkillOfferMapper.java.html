@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SkillOfferMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.mapper</a> &gt; <span class="el_source">SkillOfferMapper.java</span></div><h1>SkillOfferMapper.java</h1><pre class="source lang-java linenums">package school.faang.user_service.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.recommendation.SkillOffer;
+
+import java.util.List;
+
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+
+public interface SkillOfferMapper {
+<span class="nc" id="L15">    SkillOfferMapper INSTANCE = Mappers.getMapper(SkillOfferMapper.class);</span>
+
+    @Mapping(target = &quot;skillId&quot;, source = &quot;skill.id&quot;)
+    SkillOfferDto toDTO(SkillOffer skillOffer);
+
+    @Mapping(target = &quot;skill&quot;, ignore = true)
+    SkillOffer toEntity(SkillOfferDto skillOfferDTO);
+
+    List&lt;SkillOfferDto&gt; toDto(List&lt;SkillOffer&gt; skillOffers);
+
+    List&lt;SkillOffer&gt; toEntity(List&lt;SkillOfferDto&gt; skillOffers);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserBannerListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.listeners</a> &gt; <span class="el_source">UserBannerListener.java</span></div><h1>UserBannerListener.java</h1><pre class="source lang-java linenums">package school.faang.user_service.listeners;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.service.UserService;
+
+@Component
+<span class="nc" id="L10">@RequiredArgsConstructor</span>
+public class UserBannerListener implements MessageListener {
+    private final UserService userService;
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+<span class="nc" id="L15">        String channel = new String(message.getChannel());</span>
+<span class="nc" id="L16">        String messageBody = new String(message.getBody());</span>
+<span class="nc" id="L17">        System.out.println(&quot;Received message from channel '&quot; + channel + &quot;': &quot; + messageBody);</span>
+<span class="nc" id="L18">        userService.banUser(Long.parseLong(messageBody));</span>
+<span class="nc" id="L19">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

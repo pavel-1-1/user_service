@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GoalService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service</a> &gt; <span class="el_source">GoalService.java</span></div><h1>GoalService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.ResponseGoalDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
+import school.faang.user_service.dto.redis.GoalSetEventDto;
+import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.filter.goal.GoalFilter;
+import school.faang.user_service.mapper.goal.CreateGoalMapper;
+import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.publisher.GoalSetPublisher;
+import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.goal.GoalRepository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+@Service
+<span class="nc" id="L31">@RequiredArgsConstructor</span>
+public class GoalService {
+    private final GoalRepository goalRepository;
+    private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
+    private final GoalMapper goalMapper;
+    private final CreateGoalMapper createGoalMapper;
+    private final List&lt;GoalFilter&gt; goalFilters;
+    private final GoalSetPublisher goalSetPublisher;
+    private static final int MAX_GOALS_PER_USER = 3;
+
+    public void addUser(Goal goal, User user) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (goal.getUsers() == null) {</span>
+<span class="nc" id="L44">            goal.setUsers(new ArrayList&lt;&gt;());</span>
+        }
+<span class="nc" id="L46">        goal.getUsers().add(user);</span>
+<span class="nc" id="L47">    }</span>
+
+    @Transactional
+    public void deleteGoal(long goalId) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (!existGoalById(goalId)) {</span>
+<span class="nc" id="L52">            throw new IllegalArgumentException(&quot;Goal is not found&quot;);</span>
+        }
+
+<span class="nc" id="L55">        goalRepository.deleteById(goalId);</span>
+<span class="nc" id="L56">    }</span>
+
+    @Transactional(readOnly = true)
+    public List&lt;GoalDto&gt; getGoalsByUser(Long userId, GoalFilterDto filterDto) {
+<span class="nc" id="L60">        Stream&lt;Goal&gt; goals = goalRepository.findGoalsByUserId(userId)</span>
+<span class="nc" id="L61">                .peek(goal -&gt; goal.setSkillsToAchieve(skillRepository.findSkillsByGoalId(goal.getId())));</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (filterDto != null) {</span>
+<span class="nc" id="L64">            return filterGoals(goals, filterDto);</span>
+        }
+
+<span class="nc" id="L67">        return goalMapper.toDtoList(goals.toList());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;GoalDto&gt; getSubGoalsByFilter(Long parentId, GoalFilterDto filterDto) {
+<span class="nc" id="L72">        Stream&lt;Goal&gt; goals = goalRepository.findByParent(parentId)</span>
+<span class="nc" id="L73">                .peek(goal -&gt; goal.setSkillsToAchieve(skillRepository.findSkillsByGoalId(goal.getId())));</span>
+
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (filterDto != null) {</span>
+<span class="nc" id="L76">            return filterGoals(goals, filterDto);</span>
+        }
+
+<span class="nc" id="L79">        return goalMapper.toDtoList(goals.toList());</span>
+    }
+
+    private List&lt;GoalDto&gt; filterGoals(Stream&lt;Goal&gt; goals, GoalFilterDto filter) {
+<span class="nc" id="L83">        Stream&lt;Goal&gt; filteredGoals = goals;</span>
+
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (GoalFilter goalFilter : goalFilters) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (goalFilter.isApplicable(filter)) {</span>
+<span class="nc" id="L87">                filteredGoals = goalFilter.apply(filteredGoals, filter);</span>
+            }
+<span class="nc" id="L89">        }</span>
+
+<span class="nc" id="L91">        return goalMapper.toDtoList(filteredGoals.toList());</span>
+    }
+
+    @Transactional
+    public ResponseGoalDto createGoal(Long userId, CreateGoalDto goalDto) {
+<span class="nc" id="L96">        validateGoalToCreate(userId, goalDto);</span>
+<span class="nc" id="L97">        Goal goal = goalRepository.save(createGoalMapper.toGoalFromCreateGoalDto(goalDto));</span>
+<span class="nc" id="L98">        goal.setUsers(List.of(User.builder().id(userId).build()));</span>
+<span class="nc" id="L99">        goalSetPublisher.publishMessage(new GoalSetEventDto(goal.getId(), userId));</span>
+<span class="nc" id="L100">        return createGoalMapper.toResponseGoalDtoFromGoal(goal);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public boolean canAddGoalToUser(Long userId) {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        return goalRepository.countActiveGoalsPerUser(userId) &gt;= MAX_GOALS_PER_USER;</span>
+    }
+
+    public boolean existGoalById(Long goalId) {
+<span class="nc" id="L109">        return goalRepository.existsById(goalId);</span>
+    }
+
+    private void validateGoalToCreate(Long userId, CreateGoalDto goalDto) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (canAddGoalToUser(userId)) {</span>
+<span class="nc" id="L114">            throw new IllegalArgumentException(&quot;Maximum number of goals for this user reached&quot;);</span>
+        }
+
+<span class="nc" id="L117">        List&lt;SkillDto&gt; skillsToAchieve = goalDto.getSkillsToAchieve();</span>
+<span class="nc" id="L118">        skillsToAchieve.forEach(skill -&gt; {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (!skillRepository.existsByTitle(skill.getTitle())) {</span>
+<span class="nc" id="L120">                throw new IllegalArgumentException(&quot;Skill not found&quot;);</span>
+            }
+<span class="nc" id="L122">        });</span>
+<span class="nc" id="L123">    }</span>
+
+
+    @Transactional
+    public UpdateGoalDto updateGoal(UpdateGoalDto updateGoalDto) {
+<span class="nc" id="L128">        List&lt;SkillDto&gt; skillDtos = updateGoalDto.getSkillDtos();</span>
+<span class="nc" id="L129">        List&lt;Long&gt; userIds = updateGoalDto.getUserIds();</span>
+<span class="nc" id="L130">        Goal goalToUpdate = goalRepository.findById(updateGoalDto.getId())</span>
+<span class="nc" id="L131">                .orElseThrow(() -&gt; new IllegalArgumentException(</span>
+<span class="nc" id="L132">                        &quot;Goal with id &quot; + updateGoalDto.getId() + &quot; is not found&quot;</span>
+                ));
+
+<span class="nc" id="L135">        validateUpdate(goalToUpdate, updateGoalDto, skillDtos);</span>
+
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (updateGoalDto.getStatus() == GoalStatus.COMPLETED) {</span>
+<span class="nc" id="L138">            assignSKillsToUsers(skillDtos, userIds);</span>
+<span class="nc" id="L139">            goalToUpdate.setStatus(updateGoalDto.getStatus());</span>
+
+        }
+
+<span class="nc" id="L143">        goalToUpdate.setUpdatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L144">        return goalMapper.goalToUpdateGoalDto(goalRepository.save(goalToUpdate));</span>
+    }
+
+    private void assignSKillsToUsers(List&lt;SkillDto&gt; skillDtos, List&lt;Long&gt; userIds) {
+<span class="nc" id="L148">        skillDtos.forEach(skill -&gt; {</span>
+<span class="nc" id="L149">            userIds.forEach(userId -&gt; {</span>
+<span class="nc" id="L150">                User user = userRepository.findById(userId).orElseThrow(() -&gt;</span>
+<span class="nc" id="L151">                        new IllegalArgumentException(&quot;User not found&quot;));</span>
+<span class="nc" id="L152">                List&lt;String&gt; userSkills = user.getSkills().stream().map(Skill::getTitle).toList();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                if (!userSkills.contains(skill.getTitle())) {</span>
+<span class="nc" id="L154">                    skillRepository.assignSkillToUser(skill.getId(), user.getId());</span>
+                }
+<span class="nc" id="L156">            });</span>
+<span class="nc" id="L157">        });</span>
+<span class="nc" id="L158">    }</span>
+
+    private void validateUpdate(Goal goalToUpdate, UpdateGoalDto updateGoalDto, List&lt;SkillDto&gt; skillDtos) {
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (goalToUpdate.getStatus().equals(GoalStatus.COMPLETED)) {</span>
+<span class="nc" id="L162">            throw new IllegalArgumentException(&quot;Goal already completed&quot;);</span>
+        }
+<span class="nc" id="L164">        skillDtos.forEach(skillToAchieve -&gt; {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (!skillRepository.existsByTitle(skillToAchieve.getTitle())) {</span>
+<span class="nc" id="L166">                throw new IllegalArgumentException(&quot;Skill &quot; + skillToAchieve.getTitle() + &quot; not found&quot;);</span>
+            }
+<span class="nc" id="L168">        });</span>
+<span class="nc" id="L169">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

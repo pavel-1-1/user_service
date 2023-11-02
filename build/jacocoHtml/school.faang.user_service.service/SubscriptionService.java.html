@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubscriptionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service</a> &gt; <span class="el_source">SubscriptionService.java</span></div><h1>SubscriptionService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.subscription.UserDto;
+import school.faang.user_service.dto.subscription.UserFilterDto;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidException;
+import school.faang.user_service.filter.user.UserFilter;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.SubscriptionRepository;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+@Service
+<span class="nc" id="L17">@RequiredArgsConstructor</span>
+public class SubscriptionService {
+    private final SubscriptionRepository subscriptionRepository;
+    private final UserMapper userMapper;
+    private final List&lt;UserFilter&gt; userFilters;
+
+    public List&lt;UserDto&gt; getFollowers(long followeeId, UserFilterDto filter) {
+<span class="nc" id="L24">        validateUserId(followeeId);</span>
+<span class="nc" id="L25">        Stream&lt;User&gt; allUsers = subscriptionRepository.findByFolloweeId(followeeId);</span>
+<span class="nc" id="L26">        return filterUsers(allUsers, filter);</span>
+    }
+
+    public List&lt;UserDto&gt; getFollowing(long followerId, UserFilterDto filter) {
+<span class="nc" id="L30">        validateUserId(followerId);</span>
+<span class="nc" id="L31">        Stream&lt;User&gt; allUsers = subscriptionRepository.findByFollowerId(followerId);</span>
+<span class="nc" id="L32">        return filterUsers(allUsers, filter);</span>
+    }
+
+    private List&lt;UserDto&gt; filterUsers(Stream&lt;User&gt; users, UserFilterDto filter) {
+<span class="nc" id="L36">        Stream&lt;User&gt; filteredUsers = users;</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        for (UserFilter userFilter : userFilters) {</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">            if (userFilter.isApplicable(filter)) {</span>
+<span class="nc" id="L39">                filteredUsers = userFilter.apply(filteredUsers, filter);</span>
+            }
+<span class="nc" id="L41">        }</span>
+<span class="nc" id="L42">        return userMapper.toDtoList(filteredUsers.toList());</span>
+    }
+
+    private void validateUserId(long userId) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (userId &lt;= 0) {</span>
+<span class="nc" id="L47">            throw new IllegalArgumentException(&quot;User id cannot be negative&quot;);</span>
+        }
+<span class="nc" id="L49">    }</span>
+
+    public void followUser(long followerId, long followeeId) {
+<span class="nc" id="L52">        validate(followerId, followeeId);</span>
+<span class="nc" id="L53">        subscriptionRepository.followUser(followerId, followeeId);</span>
+<span class="nc" id="L54">    }</span>
+
+    private void validate(long followerId, long followeeId) {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {</span>
+<span class="nc" id="L58">            throw new DataValidException(&quot;Subscription already exists&quot;);</span>
+        }
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (followerId == followeeId) {</span>
+<span class="nc" id="L61">            throw new DataValidException(&quot;User can't subscribe or unsubscribe on itself&quot;);</span>
+        }
+<span class="nc" id="L63">    }</span>
+
+    public void unfollowUser(long followerId, long followeeId) {
+<span class="nc" id="L66">        validate(followerId, followeeId);</span>
+<span class="nc" id="L67">        subscriptionRepository.unfollowUser(followerId, followeeId);</span>
+<span class="nc" id="L68">    }</span>
+
+    public int getFollowersCount(long followeeId) {
+<span class="nc" id="L71">        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);</span>
+    }
+
+    public int getFollowingCount(long followerId) {
+<span class="nc" id="L75">        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

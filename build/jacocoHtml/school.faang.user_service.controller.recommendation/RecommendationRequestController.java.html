@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationRequestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.controller.recommendation</a> &gt; <span class="el_source">RecommendationRequestController.java</span></div><h1>RecommendationRequestController.java</h1><pre class="source lang-java linenums">package school.faang.user_service.controller.recommendation;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
+import school.faang.user_service.service.RecommendationRequestService;
+
+import java.util.List;
+
+
+@RestController
+<span class="nc" id="L23">@RequiredArgsConstructor</span>
+@RequestMapping(&quot;api/v1/recommendation-requests&quot;)
+public class RecommendationRequestController {
+    private final RecommendationRequestService recommendationRequestService;
+
+    @GetMapping(&quot;/{id}&quot;)
+    public RecommendationRequestDto getRecommendationRequest(@PathVariable long id) {
+<span class="nc" id="L30">        return recommendationRequestService.getRequest(id);</span>
+    }
+
+    @GetMapping(&quot;/filtered&quot;)
+    public List&lt;RecommendationRequestDto&gt; getRecommendationRequests(RecommendationRequestFilterDto filterDto) {
+<span class="nc" id="L35">        return recommendationRequestService.getRecommendationRequests(filterDto);</span>
+    }
+
+    @PutMapping({&quot;/{id}/reject&quot;})
+    public RecommendationRequestDto rejectRequest(@PathVariable long id, @Valid @RequestBody RejectionDto rejection) {
+<span class="nc" id="L40">        return recommendationRequestService.rejectRequest(id, rejection);</span>
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecommendationRequestDto requestRecommendation(@Valid @RequestBody RecommendationRequestDto recommendationRequest) {
+<span class="nc" id="L46">        recommendationRequestService.create(recommendationRequest);</span>
+<span class="nc" id="L47">        return recommendationRequest;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

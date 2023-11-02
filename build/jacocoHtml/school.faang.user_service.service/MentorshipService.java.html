@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MentorshipService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service</a> &gt; <span class="el_source">MentorshipService.java</span></div><h1>MentorshipService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.redis.MentorshipStartEventDto;
+import school.faang.user_service.dto.subscription.UserDto;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.MentorshipStartEventPublisher;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.mentorship.MentorshipRepository;
+
+import java.util.List;
+
+@Service
+<span class="nc" id="L17">@RequiredArgsConstructor</span>
+public class MentorshipService {
+    private final MentorshipRepository mentorshipRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final MentorshipStartEventPublisher mentorshipStartEventPublisher;
+
+    public void cancelMentoring(User user, List&lt;Goal&gt; goals) {
+<span class="nc" id="L25">        user.getMentees().stream().map(User::getMentors).forEach(list -&gt; list.remove(user));</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        goals.stream().filter(goal -&gt; goal.getMentor().getId() == user.getId()).forEach(goal -&gt; goal.setMentor(null));</span>
+<span class="nc" id="L27">    }</span>
+
+    public List&lt;UserDto&gt; getMentees(Long userId) {
+<span class="nc" id="L30">        User user = mentorshipRepository.findById(userId)</span>
+<span class="nc" id="L31">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + userId + &quot; not found&quot;));</span>
+
+<span class="nc" id="L33">        return userMapper.toUserListDto(user.getMentees());</span>
+    }
+
+    public List&lt;UserDto&gt; getMentors(Long userId) {
+<span class="nc" id="L37">        User user = mentorshipRepository.findById(userId)</span>
+<span class="nc" id="L38">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + userId + &quot; not found&quot;));</span>
+
+<span class="nc" id="L40">        return userMapper.toUserListDto(user.getMentors());</span>
+    }
+
+    public void deleteMentee(Long menteeId, Long mentorId) {
+<span class="nc" id="L44">        User mentor = userRepository.findById(mentorId)</span>
+<span class="nc" id="L45">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Mentor with id &quot; + mentorId + &quot; not found&quot;));</span>
+<span class="nc" id="L46">        User mentee = userRepository.findById(menteeId)</span>
+<span class="nc" id="L47">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Mentee with id &quot; + menteeId + &quot; not found&quot;));</span>
+<span class="nc" id="L48">        mentor.getMentees().remove(mentee);</span>
+<span class="nc" id="L49">        userRepository.save(mentor);</span>
+<span class="nc" id="L50">    }</span>
+
+    public void deleteMentor(Long menteeId, Long mentorId) {
+<span class="nc" id="L53">        User mentor = userRepository.findById(mentorId)</span>
+<span class="nc" id="L54">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Mentor with id &quot; + mentorId + &quot; not found&quot;));</span>
+<span class="nc" id="L55">        User mentee = userRepository.findById(menteeId)</span>
+<span class="nc" id="L56">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Mentee with id &quot; + menteeId + &quot; not found&quot;));</span>
+<span class="nc" id="L57">        mentee.getMentors().remove(mentor);</span>
+<span class="nc" id="L58">        userRepository.save(mentee);</span>
+<span class="nc" id="L59">    }</span>
+
+    // РјРµС‚РѕРґ Р·Р°РіР»СѓС€РєР° !!!!!!!!!!!!!!!!
+    public void acceptMentoring() {
+
+<span class="nc" id="L64">        MentorshipStartEventDto dto = new MentorshipStartEventDto();</span>
+<span class="nc" id="L65">        dto.setRequesterId(1L);</span>
+<span class="nc" id="L66">        dto.setReceiverId(2L);</span>
+<span class="nc" id="L67">        mentorshipStartEventPublisher.publishMessage(dto);</span>
+<span class="nc" id="L68">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

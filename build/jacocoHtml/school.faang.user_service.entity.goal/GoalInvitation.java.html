@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GoalInvitation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.entity.goal</a> &gt; <span class="el_source">GoalInvitation.java</span></div><h1>GoalInvitation.java</h1><pre class="source lang-java linenums">package school.faang.user_service.entity.goal;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
+
+import java.time.LocalDateTime;
+
+<span class="nc bnc" id="L14" title="All 56 branches missed.">@Data</span>
+<span class="nc" id="L15">@NoArgsConstructor</span>
+<span class="nc" id="L16">@AllArgsConstructor</span>
+@Entity
+@Table(name = &quot;goal_invitation&quot;)
+public class GoalInvitation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+<span class="nc" id="L23">    private long id;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;goal_id&quot;, nullable = false)
+<span class="nc" id="L27">    private Goal goal;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;inviter_id&quot;, nullable = false)
+<span class="nc" id="L31">    private User inviter;</span>
+
+    @ManyToOne
+    @JoinColumn(name = &quot;invited_id&quot;, nullable = false)
+<span class="nc" id="L35">    private User invited;</span>
+
+    @Column(name = &quot;status&quot;, nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+<span class="nc" id="L39">    private RequestStatus status;</span>
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;created_at&quot;, nullable = false)
+<span class="nc" id="L44">    private LocalDateTime createdAt;</span>
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = &quot;updated_at&quot;, nullable = false)
+<span class="nc" id="L49">    private LocalDateTime updatedAt;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

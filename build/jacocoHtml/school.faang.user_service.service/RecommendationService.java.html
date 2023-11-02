@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service</a> &gt; <span class="el_source">RecommendationService.java</span></div><h1>RecommendationService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.exception.DataValidException;
+import school.faang.user_service.exception.RecommendationPeriodIsNotCorrect;
+import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+<span class="nc" id="L34">@RequiredArgsConstructor</span>
+<span class="nc" id="L35">@Slf4j</span>
+public class RecommendationService {
+    private static final int RECOMMENDATION_PERIOD_IN_MONTH = 6;
+    @Value(&quot;${min.offers.to.convert.skill:2}&quot;)
+    private int MIN_OFFERS_TO_CONVERT_SKILL;
+    private final RecommendationRepository recommendationRepository;
+    private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
+    private final RecommendationMapper recommendationMapper;
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final SkillOfferRepository skillOfferRepository;
+
+    @Transactional
+    public RecommendationDto create(RecommendationDto recommendationDto) {
+<span class="nc" id="L49">        checkRecommendation(recommendationDto);</span>
+<span class="nc" id="L50">        Long recommendationId = recommendationRepository.create(recommendationDto.getAuthorId(),</span>
+<span class="nc" id="L51">                recommendationDto.getReceiverId(),</span>
+<span class="nc" id="L52">                recommendationDto.getContent());</span>
+<span class="nc" id="L53">        Recommendation recommendation = recommendationRepository.findById(recommendationId)</span>
+<span class="nc" id="L54">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Recommendation not found exception&quot;));</span>
+<span class="nc" id="L55">        User author = recommendation.getAuthor();</span>
+<span class="nc" id="L56">        User receiver = recommendation.getReceiver();</span>
+<span class="nc" id="L57">        saveUserSkillsWithGuarantee(author, receiver, recommendationDto.getSkillOffers());</span>
+<span class="nc" id="L58">        List&lt;SkillOffer&gt; skillOffers = initNewSkillOffers(</span>
+                recommendationId,
+                author,
+                receiver,
+<span class="nc" id="L62">                recommendationDto.getSkillOffers());</span>
+<span class="nc" id="L63">        recommendation.setSkillOffers(skillOffers);</span>
+<span class="nc" id="L64">        return recommendationMapper.toDto(recommendationRepository.save(recommendation));</span>
+    }
+
+    @Transactional
+    public RecommendationDto update(RecommendationUpdateDto toUpdate) {
+<span class="nc" id="L69">        Recommendation toUpdateRecommendation = recommendationRepository.findById(toUpdate.getId())</span>
+<span class="nc" id="L70">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;Recommendation not found&quot;));</span>
+<span class="nc" id="L71">        toUpdateRecommendation.setContent(toUpdate.getContent());</span>
+<span class="nc" id="L72">        toUpdateRecommendation.setUpdatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L73">        return recommendationMapper.toDto(recommendationRepository.save(toUpdateRecommendation));</span>
+    }
+
+    /**
+     * РњРµС‚РѕРґ, РїСЂРµРґРѕСЃС‚Р°РІР»СЏСЋС‰РёР№ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕР±РЅРѕРІРёС‚СЊ РІСЃРµ РїРѕР»СЏ СЂРµРєРѕРјРµРЅРґР°С†РёРё, РІРєР»СЋС‡Р°СЏ СЃРїРёСЃРѕРє РѕС„С„РµСЂРѕРІ.
+     * РўР°РєР¶Рµ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ РґРѕР±Р°РІР»РµРЅРёРµ РѕС„РµСЂРѕРІ РІ СЃРїРёСЃРѕРє СЃРєРёР»Р»РѕРІ СЃРѕРіР»Р°СЃРЅРѕ Р±РёР·РЅРµСЃ-Р»РѕРіРёРєРµ
+     * (РµСЃР»Рё РїСЂРѕРёР·РѕС€Р»Рѕ РЅР°РєРѕРїР»РµРЅРёРµ РѕРґРёРЅР°РєРѕРІС‹С… РѕС„С„РµСЂРѕРІ).
+     *
+     * @param toUpdate - РІС…РѕРґСЏС‰РёРµ РїР°СЂР°РјРµС‚СЂС‹ РѕР±РЅРѕРІР»РµРЅРёСЏ РІ С„РѕСЂРјРµ Dto.
+     * @return RecommendationDto (Dto РѕР±РЅРѕРІР»РµРЅРЅРѕР№ СЂРµРєРѕРјРµРЅРґР°С†РёРё)
+     */
+    @Transactional
+    public RecommendationDto extendedUpdate(RecommendationDto toUpdate) {
+<span class="nc" id="L86">        skillOfferRepository.deleteAllByRecommendationId(toUpdate.getId());</span>
+<span class="nc" id="L87">        User author = userRepository.findById(toUpdate.getAuthorId())</span>
+<span class="nc" id="L88">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;User not found&quot;));</span>
+<span class="nc" id="L89">        User receiver = userRepository.findById(toUpdate.getReceiverId())</span>
+<span class="nc" id="L90">                .orElseThrow(() -&gt; new EntityNotFoundException(&quot;User not found&quot;));</span>
+<span class="nc" id="L91">        Recommendation recommendation = recommendationMapper.toEntity(toUpdate);</span>
+<span class="nc" id="L92">        saveUserSkillsWithGuarantee(author, receiver, toUpdate.getSkillOffers());</span>
+<span class="nc" id="L93">        recommendation.setAuthor(author);</span>
+<span class="nc" id="L94">        recommendation.setReceiver(receiver);</span>
+<span class="nc" id="L95">        List&lt;SkillOffer&gt; skillOffers = initNewSkillOffers(</span>
+<span class="nc" id="L96">                recommendation.getId(),</span>
+                author,
+                receiver,
+<span class="nc" id="L99">                toUpdate.getSkillOffers());</span>
+<span class="nc" id="L100">        recommendation.setSkillOffers(skillOffers);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        recommendation.setUpdatedAt(toUpdate.getCreatedAt() != null ? toUpdate.getCreatedAt() : LocalDateTime.now());</span>
+<span class="nc" id="L102">        return recommendationMapper.toDto(recommendationRepository.save(recommendation));</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Page&lt;RecommendationDto&gt; getAllReceiverRecommendations(Long receiverId, int page, int pageSize) {
+<span class="nc" id="L107">        Page&lt;Recommendation&gt; recommendations = recommendationRepository.findAllByReceiverId(</span>
+<span class="nc" id="L108">                receiverId,</span>
+<span class="nc" id="L109">                PageRequest.of(page, pageSize));</span>
+<span class="nc" id="L110">        return recommendations.map(recommendationMapper::toDto);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Page&lt;RecommendationDto&gt; getAllAuthorRecommendations(Long authorId, int page, int pageSize) {
+<span class="nc" id="L115">        Page&lt;Recommendation&gt; recommendationPage = recommendationRepository.findAllByAuthorId(</span>
+<span class="nc" id="L116">                authorId,</span>
+<span class="nc" id="L117">                PageRequest.of(page, pageSize)</span>
+        );
+<span class="nc" id="L119">        return recommendationPage.map(recommendationMapper::toDto);</span>
+    }
+
+    public void delete(Long id) {
+<span class="nc" id="L123">        recommendationRepository.deleteById(id);</span>
+<span class="nc" id="L124">    }</span>
+
+    private void checkRecommendation(RecommendationDto recommendation) {
+<span class="nc" id="L127">        recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(</span>
+<span class="nc" id="L128">                recommendation.getAuthorId(),</span>
+<span class="nc" id="L129">                recommendation.getReceiverId()</span>
+<span class="nc" id="L130">        ).filter(rec -&gt; rec.getCreatedAt()</span>
+
+<span class="nc" id="L132">                .plusMonths(RECOMMENDATION_PERIOD_IN_MONTH)</span>
+<span class="nc" id="L133">                .isAfter(LocalDateTime.now()))</span>
+<span class="nc" id="L134">                .ifPresent(r -&gt; {</span>
+<span class="nc" id="L135">                    throw new RecommendationPeriodIsNotCorrect(</span>
+                            &quot;Date of new recommendation should be after &quot;
+                                    + RECOMMENDATION_PERIOD_IN_MONTH
+                                    + &quot; months of the last recommendation&quot;
+                    );
+                });
+<span class="nc" id="L141">    }</span>
+
+    private void checkSkills(List&lt;SkillOfferDto&gt; skills) {
+<span class="nc bnc" id="L144" title="All 4 branches missed.">        if (skills == null || skills.isEmpty()) {</span>
+<span class="nc" id="L145">            return;</span>
+        }
+
+<span class="nc" id="L148">        List&lt;Long&gt; skillIds = skills.stream()</span>
+<span class="nc" id="L149">                .map(SkillOfferDto::getSkillId)</span>
+<span class="nc" id="L150">                .distinct()</span>
+<span class="nc" id="L151">                .collect(Collectors.toList());</span>
+
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (skills.size() != skillIds.size()) {</span>
+<span class="nc" id="L154">            throw new DataValidException(&quot;List of skills contains not unique skills&quot;);</span>
+        }
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (skillIds.size() != skillRepository.countExisting(skillIds)) {</span>
+<span class="nc" id="L158">            throw new DataValidException(&quot;List of skills contains not valid skills&quot;);</span>
+        }
+<span class="nc" id="L160">    }</span>
+
+    private void saveUserSkillsWithGuarantee(User author, User receiver, List&lt;SkillOfferDto&gt; skillOffers) {
+<span class="nc" id="L163">        checkSkills(skillOffers);</span>
+<span class="nc" id="L164">        List&lt;Long&gt; receiverSkillsIds = receiver.getSkills().stream()</span>
+<span class="nc" id="L165">                .map(Skill::getId)</span>
+<span class="nc" id="L166">                .toList();</span>
+<span class="nc" id="L167">        List&lt;UserSkillGuarantee&gt; guarantees = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L168">        skillOffers.forEach(s -&gt; {</span>
+<span class="nc" id="L169">            long skillId = s.getSkillId();</span>
+<span class="nc" id="L170">            List&lt;User&gt; authors = skillOfferRepository.findAllAuthorsBySkillIdAndReceiverId(skillId, receiver.getId());</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">            if (authors != null &amp;&amp; authors.size() &gt;= MIN_OFFERS_TO_CONVERT_SKILL</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                    &amp;&amp; !receiverSkillsIds.contains(s.getSkillId())) {</span>
+<span class="nc" id="L173">                skillRepository.assignSkillToUser(skillId, receiver.getId());</span>
+<span class="nc" id="L174">                authors.forEach(o -&gt; guarantees.add(UserSkillGuarantee.builder()</span>
+<span class="nc" id="L175">                        .skill(Skill.builder().id(skillId).build())</span>
+<span class="nc" id="L176">                        .guarantor(o)</span>
+<span class="nc" id="L177">                        .user(receiver)</span>
+<span class="nc" id="L178">                        .build()));</span>
+<span class="nc" id="L179">                guarantees.add(UserSkillGuarantee.builder()</span>
+<span class="nc" id="L180">                        .skill(Skill.builder().id(skillId).build())</span>
+<span class="nc" id="L181">                        .guarantor(author)</span>
+<span class="nc" id="L182">                        .user(receiver)</span>
+<span class="nc" id="L183">                        .build());</span>
+            }
+<span class="nc" id="L185">        });</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (!guarantees.isEmpty()) {</span>
+<span class="nc" id="L187">            userSkillGuaranteeRepository.saveAll(guarantees);</span>
+        }
+<span class="nc" id="L189">    }</span>
+
+    /**
+     * РњРµС‚РѕРґ, РІ РєРѕС‚РѕСЂРѕРј РІР°Р»РёРґРёСЂСѓРµРј РїСЂРёС…РѕРґСЏС‰РёРµ РѕС„РµСЂР°, С„РѕСЂРјРёСЂСѓРµРј СЃРїРёСЃРѕРє РѕС„РµСЂРѕРІ, РґРѕР±Р°РІР»СЏСЏ РіР°СЂР°РЅС‚РѕСЂРѕРІ
+     *
+     * @param recommendationId - Р�РґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂРµРєРѕРјРµРЅРґР°С†РёРё.
+     * @param author - РђРІС‚РѕСЂ СЂРµРєРѕРјРµРЅРґР°С†РёРё.
+     * @param receiver - РїРѕР»СѓС‡Р°С‚РµР»СЊ СЂРµРєРѕРјРµРЅРґР°С†РёРё.
+     * @param skillOffers - РЎРїРёСЃРѕРє РїСЂРµРґР»Р°РіР°РµРјС‹С… РЅР°РІС‹РєРѕРІ.
+     * @return - СЃРїРёСЃРѕРє РїСЂРµРґР»Р°РіР°РµРјС‹С… РЅР°РІС‹РєРѕРІ СЃ Р·Р°РїРѕР»РЅРµРЅРЅС‹РјРё РїРѕР»СЏРјРё(Р°РІС‚РѕСЂ-РїРѕР»СѓС‡Р°С‚РµР»СЊ-СЂРµРєРѕРјРµРЅРґР°С†РёСЏ).
+     */
+    private List&lt;SkillOffer&gt; initNewSkillOffers(Long recommendationId,
+                                                User author,
+                                                User receiver,
+                                                List&lt;SkillOfferDto&gt; skillOffers) {
+<span class="nc" id="L204">        checkSkills(skillOffers);</span>
+<span class="nc" id="L205">        List&lt;Long&gt; skillIds = skillOffers.stream()</span>
+<span class="nc" id="L206">                .map(SkillOfferDto::getSkillId)</span>
+<span class="nc" id="L207">                .toList();</span>
+<span class="nc" id="L208">        List&lt;Skill&gt; offeredSkills = skillRepository.findAllById(skillIds);</span>
+<span class="nc" id="L209">        addGuarantee(author, receiver, offeredSkills);</span>
+<span class="nc" id="L210">        List&lt;Long&gt; skillOfferIds = offeredSkills.stream()</span>
+<span class="nc" id="L211">                .map(s -&gt; skillOfferRepository.create(s.getId(), recommendationId))</span>
+<span class="nc" id="L212">                .toList();</span>
+<span class="nc" id="L213">        List&lt;SkillOffer&gt; result = skillOfferRepository.findAllById(skillOfferIds);</span>
+<span class="nc" id="L214">        return result;</span>
+    }
+
+    /**
+     * РњРµС‚РѕРґ РґРѕР±Р°РІР»РµРЅРёСЏ Р°РІС‚РѕСЂР° СЂРµРєРѕРјРµРЅРґР°С†РёРё РіР°СЂР°РЅС‚РѕРј Рє СЃРєРёР»Р»Сѓ, РєРѕС‚РѕСЂС‹Р№ РѕРЅ РїСЂРµРґР»Р°РіР°РµС‚, РµСЃР»Рё СЌС‚РѕС‚ Р°РІС‚РѕСЂ РµС‰Рµ РЅРµ СЃС‚РѕРёС‚ С‚Р°Рј РіР°СЂР°РЅС‚РѕРј
+     *
+     * @param author - РђРІС‚РѕСЂ СЂРµРєРѕРјРµРЅРґР°С†РёРё.
+     * @param receiver - РџРѕР»СѓС‡Р°С‚РµР»СЊ СЂРµРєРѕРјРµРЅРґР°С†РёРё.
+     * @param offeredSkills - РЎРїРёСЃРѕРє РїСЂРµРґР»Р°РіР°РµРјС‹С… РЅР°РІС‹РєРѕРІ.
+     */
+    private void addGuarantee(User author, User receiver, List&lt;Skill&gt; offeredSkills) {
+<span class="nc" id="L225">        List&lt;Skill&gt; receiverSkills = receiver.getSkills();</span>
+<span class="nc" id="L226">        List&lt;UserSkillGuarantee&gt; userSkillGuarantees = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L227">        offeredSkills.forEach(s -&gt; {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">                    if (!receiverSkills.contains(s)) {</span>
+<span class="nc" id="L229">                        return;</span>
+                    }
+<span class="nc" id="L231">                    boolean isGuaranteesContainsCurrentAuthor = s.getGuarantees()</span>
+<span class="nc" id="L232">                            .stream()</span>
+<span class="nc" id="L233">                            .map(UserSkillGuarantee::getGuarantor)</span>
+<span class="nc" id="L234">                            .map(User::getId)</span>
+<span class="nc" id="L235">                            .noneMatch(g -&gt; g.equals(author.getId()));</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">                    if (isGuaranteesContainsCurrentAuthor) {</span>
+<span class="nc" id="L237">                        UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()</span>
+<span class="nc" id="L238">                                .skill(s)</span>
+<span class="nc" id="L239">                                .guarantor(author)</span>
+<span class="nc" id="L240">                                .user(receiver)</span>
+<span class="nc" id="L241">                                .build();</span>
+<span class="nc" id="L242">                        userSkillGuarantees.add(userSkillGuarantee);</span>
+                    }
+<span class="nc" id="L244">                }</span>
+        );
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (!userSkillGuarantees.isEmpty()) {</span>
+<span class="nc" id="L247">            userSkillGuaranteeRepository.saveAll(userSkillGuarantees);</span>
+        }
+<span class="nc" id="L249">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Person.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">com.json.student</a> &gt; <span class="el_source">Person.java</span></div><h1>Person.java</h1><pre class="source lang-java linenums">
+package com.json.student;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.processing.Generated;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    &quot;firstName&quot;,
+    &quot;lastName&quot;,
+    &quot;yearOfBirth&quot;,
+    &quot;group&quot;,
+    &quot;studentID&quot;,
+    &quot;contactInfo&quot;,
+    &quot;education&quot;,
+    &quot;status&quot;,
+    &quot;admissionDate&quot;,
+    &quot;graduationDate&quot;,
+    &quot;previousEducation&quot;,
+    &quot;scholarship&quot;,
+    &quot;employer&quot;
+})
+@Generated(&quot;jsonschema2pojo&quot;)
+<span class="nc" id="L33">public class Person {</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;firstName&quot;)
+    private String firstName;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;lastName&quot;)
+    private String lastName;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;yearOfBirth&quot;)
+    private Integer yearOfBirth;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;group&quot;)
+    private String group;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;studentID&quot;)
+    private String studentID;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;contactInfo&quot;)
+    private ContactInfo contactInfo;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;education&quot;)
+    private Education education;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;status&quot;)
+    private String status;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;admissionDate&quot;)
+    private String admissionDate;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;graduationDate&quot;)
+    private String graduationDate;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+<span class="nc" id="L110">    @JsonProperty(&quot;previousEducation&quot;)</span>
+    private List&lt;PreviousEducation&gt; previousEducation = new ArrayList&lt;PreviousEducation&gt;();
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;scholarship&quot;)
+    private Boolean scholarship;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;employer&quot;)
+    private String employer;
+<span class="nc" id="L126">    @JsonIgnore</span>
+    private Map&lt;String, Object&gt; additionalProperties = new LinkedHashMap&lt;String, Object&gt;();
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;firstName&quot;)
+    public String getFirstName() {
+<span class="nc" id="L136">        return firstName;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;firstName&quot;)
+    public void setFirstName(String firstName) {
+<span class="nc" id="L146">        this.firstName = firstName;</span>
+<span class="nc" id="L147">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;lastName&quot;)
+    public String getLastName() {
+<span class="nc" id="L156">        return lastName;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;lastName&quot;)
+    public void setLastName(String lastName) {
+<span class="nc" id="L166">        this.lastName = lastName;</span>
+<span class="nc" id="L167">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;yearOfBirth&quot;)
+    public Integer getYearOfBirth() {
+<span class="nc" id="L176">        return yearOfBirth;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;yearOfBirth&quot;)
+    public void setYearOfBirth(Integer yearOfBirth) {
+<span class="nc" id="L186">        this.yearOfBirth = yearOfBirth;</span>
+<span class="nc" id="L187">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;group&quot;)
+    public String getGroup() {
+<span class="nc" id="L196">        return group;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;group&quot;)
+    public void setGroup(String group) {
+<span class="nc" id="L206">        this.group = group;</span>
+<span class="nc" id="L207">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;studentID&quot;)
+    public String getStudentID() {
+<span class="nc" id="L216">        return studentID;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;studentID&quot;)
+    public void setStudentID(String studentID) {
+<span class="nc" id="L226">        this.studentID = studentID;</span>
+<span class="nc" id="L227">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;contactInfo&quot;)
+    public ContactInfo getContactInfo() {
+<span class="nc" id="L236">        return contactInfo;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;contactInfo&quot;)
+    public void setContactInfo(ContactInfo contactInfo) {
+<span class="nc" id="L246">        this.contactInfo = contactInfo;</span>
+<span class="nc" id="L247">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;education&quot;)
+    public Education getEducation() {
+<span class="nc" id="L256">        return education;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;education&quot;)
+    public void setEducation(Education education) {
+<span class="nc" id="L266">        this.education = education;</span>
+<span class="nc" id="L267">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;status&quot;)
+    public String getStatus() {
+<span class="nc" id="L276">        return status;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;status&quot;)
+    public void setStatus(String status) {
+<span class="nc" id="L286">        this.status = status;</span>
+<span class="nc" id="L287">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;admissionDate&quot;)
+    public String getAdmissionDate() {
+<span class="nc" id="L296">        return admissionDate;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;admissionDate&quot;)
+    public void setAdmissionDate(String admissionDate) {
+<span class="nc" id="L306">        this.admissionDate = admissionDate;</span>
+<span class="nc" id="L307">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;graduationDate&quot;)
+    public String getGraduationDate() {
+<span class="nc" id="L316">        return graduationDate;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;graduationDate&quot;)
+    public void setGraduationDate(String graduationDate) {
+<span class="nc" id="L326">        this.graduationDate = graduationDate;</span>
+<span class="nc" id="L327">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;previousEducation&quot;)
+    public List&lt;PreviousEducation&gt; getPreviousEducation() {
+<span class="nc" id="L336">        return previousEducation;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;previousEducation&quot;)
+    public void setPreviousEducation(List&lt;PreviousEducation&gt; previousEducation) {
+<span class="nc" id="L346">        this.previousEducation = previousEducation;</span>
+<span class="nc" id="L347">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;scholarship&quot;)
+    public Boolean getScholarship() {
+<span class="nc" id="L356">        return scholarship;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;scholarship&quot;)
+    public void setScholarship(Boolean scholarship) {
+<span class="nc" id="L366">        this.scholarship = scholarship;</span>
+<span class="nc" id="L367">    }</span>
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;employer&quot;)
+    public String getEmployer() {
+<span class="nc" id="L376">        return employer;</span>
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty(&quot;employer&quot;)
+    public void setEmployer(String employer) {
+<span class="nc" id="L386">        this.employer = employer;</span>
+<span class="nc" id="L387">    }</span>
+
+    @JsonAnyGetter
+    public Map&lt;String, Object&gt; getAdditionalProperties() {
+<span class="nc" id="L391">        return this.additionalProperties;</span>
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+<span class="nc" id="L396">        this.additionalProperties.put(name, value);</span>
+<span class="nc" id="L397">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L401">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L402">        sb.append(Person.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');</span>
+<span class="nc" id="L403">        sb.append(&quot;firstName&quot;);</span>
+<span class="nc" id="L404">        sb.append('=');</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">        sb.append(((this.firstName == null)?&quot;&lt;null&gt;&quot;:this.firstName));</span>
+<span class="nc" id="L406">        sb.append(',');</span>
+<span class="nc" id="L407">        sb.append(&quot;lastName&quot;);</span>
+<span class="nc" id="L408">        sb.append('=');</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        sb.append(((this.lastName == null)?&quot;&lt;null&gt;&quot;:this.lastName));</span>
+<span class="nc" id="L410">        sb.append(',');</span>
+<span class="nc" id="L411">        sb.append(&quot;yearOfBirth&quot;);</span>
+<span class="nc" id="L412">        sb.append('=');</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">        sb.append(((this.yearOfBirth == null)?&quot;&lt;null&gt;&quot;:this.yearOfBirth));</span>
+<span class="nc" id="L414">        sb.append(',');</span>
+<span class="nc" id="L415">        sb.append(&quot;group&quot;);</span>
+<span class="nc" id="L416">        sb.append('=');</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">        sb.append(((this.group == null)?&quot;&lt;null&gt;&quot;:this.group));</span>
+<span class="nc" id="L418">        sb.append(',');</span>
+<span class="nc" id="L419">        sb.append(&quot;studentID&quot;);</span>
+<span class="nc" id="L420">        sb.append('=');</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">        sb.append(((this.studentID == null)?&quot;&lt;null&gt;&quot;:this.studentID));</span>
+<span class="nc" id="L422">        sb.append(',');</span>
+<span class="nc" id="L423">        sb.append(&quot;contactInfo&quot;);</span>
+<span class="nc" id="L424">        sb.append('=');</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">        sb.append(((this.contactInfo == null)?&quot;&lt;null&gt;&quot;:this.contactInfo));</span>
+<span class="nc" id="L426">        sb.append(',');</span>
+<span class="nc" id="L427">        sb.append(&quot;education&quot;);</span>
+<span class="nc" id="L428">        sb.append('=');</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">        sb.append(((this.education == null)?&quot;&lt;null&gt;&quot;:this.education));</span>
+<span class="nc" id="L430">        sb.append(',');</span>
+<span class="nc" id="L431">        sb.append(&quot;status&quot;);</span>
+<span class="nc" id="L432">        sb.append('=');</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">        sb.append(((this.status == null)?&quot;&lt;null&gt;&quot;:this.status));</span>
+<span class="nc" id="L434">        sb.append(',');</span>
+<span class="nc" id="L435">        sb.append(&quot;admissionDate&quot;);</span>
+<span class="nc" id="L436">        sb.append('=');</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">        sb.append(((this.admissionDate == null)?&quot;&lt;null&gt;&quot;:this.admissionDate));</span>
+<span class="nc" id="L438">        sb.append(',');</span>
+<span class="nc" id="L439">        sb.append(&quot;graduationDate&quot;);</span>
+<span class="nc" id="L440">        sb.append('=');</span>
+<span class="nc bnc" id="L441" title="All 2 branches missed.">        sb.append(((this.graduationDate == null)?&quot;&lt;null&gt;&quot;:this.graduationDate));</span>
+<span class="nc" id="L442">        sb.append(',');</span>
+<span class="nc" id="L443">        sb.append(&quot;previousEducation&quot;);</span>
+<span class="nc" id="L444">        sb.append('=');</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">        sb.append(((this.previousEducation == null)?&quot;&lt;null&gt;&quot;:this.previousEducation));</span>
+<span class="nc" id="L446">        sb.append(',');</span>
+<span class="nc" id="L447">        sb.append(&quot;scholarship&quot;);</span>
+<span class="nc" id="L448">        sb.append('=');</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">        sb.append(((this.scholarship == null)?&quot;&lt;null&gt;&quot;:this.scholarship));</span>
+<span class="nc" id="L450">        sb.append(',');</span>
+<span class="nc" id="L451">        sb.append(&quot;employer&quot;);</span>
+<span class="nc" id="L452">        sb.append('=');</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">        sb.append(((this.employer == null)?&quot;&lt;null&gt;&quot;:this.employer));</span>
+<span class="nc" id="L454">        sb.append(',');</span>
+<span class="nc" id="L455">        sb.append(&quot;additionalProperties&quot;);</span>
+<span class="nc" id="L456">        sb.append('=');</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">        sb.append(((this.additionalProperties == null)?&quot;&lt;null&gt;&quot;:this.additionalProperties));</span>
+<span class="nc" id="L458">        sb.append(',');</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">        if (sb.charAt((sb.length()- 1)) == ',') {</span>
+<span class="nc" id="L460">            sb.setCharAt((sb.length()- 1), ']');</span>
+        } else {
+<span class="nc" id="L462">            sb.append(']');</span>
+        }
+<span class="nc" id="L464">        return sb.toString();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L469">        int result = 1;</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">        result = ((result* 31)+((this.lastName == null)? 0 :this.lastName.hashCode()));</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">        result = ((result* 31)+((this.admissionDate == null)? 0 :this.admissionDate.hashCode()));</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">        result = ((result* 31)+((this.education == null)? 0 :this.education.hashCode()));</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">        result = ((result* 31)+((this.contactInfo == null)? 0 :this.contactInfo.hashCode()));</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">        result = ((result* 31)+((this.previousEducation == null)? 0 :this.previousEducation.hashCode()));</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">        result = ((result* 31)+((this.studentID == null)? 0 :this.studentID.hashCode()));</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        result = ((result* 31)+((this.firstName == null)? 0 :this.firstName.hashCode()));</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        result = ((result* 31)+((this.graduationDate == null)? 0 :this.graduationDate.hashCode()));</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">        result = ((result* 31)+((this.scholarship == null)? 0 :this.scholarship.hashCode()));</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">        result = ((result* 31)+((this.employer == null)? 0 :this.employer.hashCode()));</span>
+<span class="nc bnc" id="L480" title="All 2 branches missed.">        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">        result = ((result* 31)+((this.yearOfBirth == null)? 0 :this.yearOfBirth.hashCode()));</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">        result = ((result* 31)+((this.group == null)? 0 :this.group.hashCode()));</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        result = ((result* 31)+((this.status == null)? 0 :this.status.hashCode()));</span>
+<span class="nc" id="L484">        return result;</span>
+    }
+
+    @Override
+    public boolean equals(Object other) {
+<span class="nc bnc" id="L489" title="All 2 branches missed.">        if (other == this) {</span>
+<span class="nc" id="L490">            return true;</span>
+        }
+<span class="nc bnc" id="L492" title="All 2 branches missed.">        if ((other instanceof Person) == false) {</span>
+<span class="nc" id="L493">            return false;</span>
+        }
+<span class="nc" id="L495">        Person rhs = ((Person) other);</span>
+<span class="nc bnc" id="L496" title="All 84 branches missed.">        return (((((((((((((((this.lastName == rhs.lastName)||((this.lastName!= null)&amp;&amp;this.lastName.equals(rhs.lastName)))&amp;&amp;((this.admissionDate == rhs.admissionDate)||((this.admissionDate!= null)&amp;&amp;this.admissionDate.equals(rhs.admissionDate))))&amp;&amp;((this.education == rhs.education)||((this.education!= null)&amp;&amp;this.education.equals(rhs.education))))&amp;&amp;((this.contactInfo == rhs.contactInfo)||((this.contactInfo!= null)&amp;&amp;this.contactInfo.equals(rhs.contactInfo))))&amp;&amp;((this.previousEducation == rhs.previousEducation)||((this.previousEducation!= null)&amp;&amp;this.previousEducation.equals(rhs.previousEducation))))&amp;&amp;((this.studentID == rhs.studentID)||((this.studentID!= null)&amp;&amp;this.studentID.equals(rhs.studentID))))&amp;&amp;((this.firstName == rhs.firstName)||((this.firstName!= null)&amp;&amp;this.firstName.equals(rhs.firstName))))&amp;&amp;((this.graduationDate == rhs.graduationDate)||((this.graduationDate!= null)&amp;&amp;this.graduationDate.equals(rhs.graduationDate))))&amp;&amp;((this.scholarship == rhs.scholarship)||((this.scholarship!= null)&amp;&amp;this.scholarship.equals(rhs.scholarship))))&amp;&amp;((this.employer == rhs.employer)||((this.employer!= null)&amp;&amp;this.employer.equals(rhs.employer))))&amp;&amp;((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&amp;&amp;this.additionalProperties.equals(rhs.additionalProperties))))&amp;&amp;((this.yearOfBirth == rhs.yearOfBirth)||((this.yearOfBirth!= null)&amp;&amp;this.yearOfBirth.equals(rhs.yearOfBirth))))&amp;&amp;((this.group == rhs.group)||((this.group!= null)&amp;&amp;this.group.equals(rhs.group))))&amp;&amp;((this.status == rhs.status)||((this.status!= null)&amp;&amp;this.status.equals(rhs.status))));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

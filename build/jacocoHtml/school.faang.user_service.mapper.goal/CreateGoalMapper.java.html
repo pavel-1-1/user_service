@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateGoalMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.mapper.goal</a> &gt; <span class="el_source">CreateGoalMapper.java</span></div><h1>CreateGoalMapper.java</h1><pre class="source lang-java linenums">package school.faang.user_service.mapper.goal;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.factory.Mappers;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.ResponseGoalDto;
+import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.goal.Goal;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Mapper(componentModel = &quot;spring&quot;, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface CreateGoalMapper {
+<span class="nc" id="L19">    CreateGoalMapper INSTANCE = Mappers.getMapper(CreateGoalMapper.class);</span>
+
+    @Mapping(source = &quot;skillsToAchieve&quot;, target = &quot;skillsToAchieve&quot;, qualifiedByName = &quot;skillDtosToSkills&quot;)
+    Goal toGoalFromCreateGoalDto(CreateGoalDto createGoalDto);
+
+    @Mapping(source = &quot;skillsToAchieve&quot;, target = &quot;skillsToAchieve&quot;, qualifiedByName = &quot;skillsToSkillDtos&quot;)
+    @Mapping(source = &quot;parent.id&quot;, target = &quot;parentId&quot;)
+    ResponseGoalDto toResponseGoalDtoFromGoal(Goal goal);
+
+    @Named(&quot;skillDtosToSkills&quot;)
+    default List&lt;Skill&gt; skillDtosToSkills(List&lt;SkillDto&gt; skillDtos) {
+<span class="nc" id="L30">        return skillDtos.stream()</span>
+<span class="nc" id="L31">                .map(skillDto -&gt; Skill.builder()</span>
+<span class="nc" id="L32">                        .id(skillDto.getId())</span>
+<span class="nc" id="L33">                        .title(skillDto.getTitle())</span>
+<span class="nc" id="L34">                        .build())</span>
+<span class="nc" id="L35">                .collect(Collectors.toList());</span>
+    }
+
+    @Named(&quot;skillsToSkillDtos&quot;)
+    default List&lt;SkillDto&gt; skillsToSkillDtos(List&lt;Skill&gt; skills) {
+<span class="nc" id="L40">        return skills.stream()</span>
+<span class="nc" id="L41">                .map(skillDto -&gt; SkillDto.builder()</span>
+<span class="nc" id="L42">                        .id(skillDto.getId())</span>
+<span class="nc" id="L43">                        .title(skillDto.getTitle())</span>
+<span class="nc" id="L44">                        .build())</span>
+<span class="nc" id="L45">                .collect(Collectors.toList());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

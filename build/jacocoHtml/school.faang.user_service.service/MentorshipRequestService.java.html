@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MentorshipRequestService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">UserService</a> &gt; <a href="index.source.html" class="el_package">school.faang.user_service.service</a> &gt; <span class="el_source">MentorshipRequestService.java</span></div><h1>MentorshipRequestService.java</h1><pre class="source lang-java linenums">package school.faang.user_service.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.redis.MentorshipAcceptedEventDto;
+import school.faang.user_service.dto.redis.MentorshipRequestedEventDto;
+import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
+import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
+import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+
+import java.time.LocalDateTime;
+
+@Service
+<span class="nc" id="L19">@RequiredArgsConstructor</span>
+public class MentorshipRequestService {
+    private final MentorshipRequestRepository mentorshipRequestRepository;
+    private final MentorshipRequestMapper mentorshipRequestMapper;
+    private final MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
+    private final MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
+
+    @Transactional
+    public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
+<span class="nc" id="L28">        MentorshipRequest request = mentorshipRequestMapper.toEntity(mentorshipRequestDto);</span>
+<span class="nc" id="L29">        request.setStatus(RequestStatus.PENDING);</span>
+<span class="nc" id="L30">        MentorshipRequestDto savedRequestDto = mentorshipRequestMapper.toDto(mentorshipRequestRepository.save(request));</span>
+
+<span class="nc" id="L32">        mentorshipRequestedEventPublisher.publish(MentorshipRequestedEventDto.builder()</span>
+<span class="nc" id="L33">                .requesterId(savedRequestDto.getRequesterId())</span>
+<span class="nc" id="L34">                .receiverId(mentorshipRequestDto.getReceiverId())</span>
+<span class="nc" id="L35">                .createdAt(LocalDateTime.now())</span>
+<span class="nc" id="L36">                .build());</span>
+
+<span class="nc" id="L38">        mentorshipAcceptedEventPublisher.publish(MentorshipAcceptedEventDto.builder()</span>
+<span class="nc" id="L39">                .requesterId(savedRequestDto.getRequesterId())</span>
+<span class="nc" id="L40">                .receiverId(mentorshipRequestDto.getReceiverId())</span>
+<span class="nc" id="L41">                .requestId(savedRequestDto.getId())</span>
+<span class="nc" id="L42">                .createdAt(LocalDateTime.now())</span>
+<span class="nc" id="L43">                .build());</span>
+<span class="nc" id="L44">        return savedRequestDto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
